@@ -1,0 +1,225 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+
+<head><link rel="stylesheet" type="text/css" href="https://moodle.dei.unipd.it/theme/standard/styles.php" />
+<link rel="stylesheet" type="text/css" href="https://moodle.dei.unipd.it/theme/dei3/styles.php" />
+
+<title>Fondamenti di Informatica - Welcome</title>
+<link rel="stylesheet" href="../../css/fi1style.css" type="text/css">
+</head>
+
+<body>
+
+<div align="center">
+<h1>Soluzione 9.6</h1>
+</div>
+
+Ecco la classe <b>TimeDepositAccount</b> (piu` sotto la classe di collaudo <b>AccountTester2</b>). Osservazioni:
+<ul>
+<li>Il testo dell'esercizio dice che "Un conto di deposito vincolato e` identico a un conto di risparmio, a parte il fatto che [...]". Questo ci fa capire che questa classe e` una sottoclasse di <b>SavingsAccount</b>. </li>
+<li>Abbiamo dovuto definire un nuovo campo di esemplare <b>monthsLeft</b>, che tiene conto dei mesi mancanti al termine del deposito vincolato. Tale campo viene inizializzato in fase di costruzione.</li>
+<li>Secondo le buone pratiche della programmazione ad oggetti, abbiamo scritto un nuovo metodo di accesso <b>getMonthsLeft()</b> che ci permette di accedere in lettura al nuovo campo di esemplare.</li>
+<li>Come da suggerimenti, il metodo <b>addInterest</b> di <b>SavingsAccount</b> e` stato sovrascritto in maniera tale che il numero di mesi mancanti al termine del deposito vincolato venga decrementato ad ogni invocazione di questo metodo (che viene in effetti invocato al termine di ogni mese, per applicare gli interessi).</li>
+<li>Infine, i metodi <b>toString</b> e <b>equals</b> sono stati sovrascritti seguendo l'approccio standard.</li>
+</ul>
+
+
+<br>
+<TABLE width="100%" border="2" align="center">
+<TR align="left" valign="center" width="100">
+<td>
+<pre>
+public class TimeDepositAccount extends SavingsAccount
+{
+
+    // ----------- Costruttori -----------------
+
+    public TimeDepositAccount(double rate, int months)
+    {
+        super(rate);
+        monthsLeft = months;
+    }
+
+    public TimeDepositAccount(double initialBalance, double rate, int months)
+    {
+        super(initialBalance, rate);
+        monthsLeft = months;
+    }
+
+
+    // ---------- Metodi modificatori -------------
+
+
+    //Sovrascrive metodo addInterest di SavingsAccount
+    //Accredita gli interessi al termine di ogni mese. In aggiunta, 
+    //decrementa il n. di mesi mancanti al termine del deposito vincolato
+    public void addInterest() // questo metodo viene invocato 
+    {   super.addInterest();  // al termine di ogni mese
+        monthsLeft--;
+    }
+
+    //Sovrascrive metodo withdraw di SavingsAccount (ereditato da BankAccount)
+    //Se viene effettuato un prelievo prima del termine, si applica penale
+    public void withdraw(double amount)
+    {
+        if (monthsLeft > 0) // allora questo e` un prelievo anticipato 
+            super.withdraw(EARLY_WITHDRAWAL_PENALTY); //applico la penale
+        super.withdraw(amount);
+    }
+
+
+    // ------- metodi di accesso --------
+
+    public int getMonthsLeft()
+    {   return monthsLeft;
+    }
+
+
+    // ------ metodi di Object sovrascritti ---------
+    // ......... toString, equals............
+
+    public String toString()
+    {
+        return super.toString() + "[monthsLeft=" + monthsLeft + "]";
+    }
+
+    public boolean equals(Object otherObject)
+    {
+        return super.equals(otherObject) &&
+               monthsLeft == ((TimeDepositAccount) otherObject).monthsLeft;
+    }
+
+
+    //-------- nuovi campi di esemplare e var. statiche ----------------
+
+    private int monthsLeft;
+    private static double EARLY_WITHDRAWAL_PENALTY = 20;  
+
+}
+
+</pre>
+</td>
+</TR>
+</TABLE>
+
+<br> 
+La classe <b>AccountTester</b> modificata.<br> 
+Su questa classe di collaudo valgono tutti i commenti fatti nell'esercizio precedente. L'unica parte nuova in questa versione e` la creazione di un oggetto di tipo <b>TimeDepositAccount</b> nel metodo <b>main</b>, e la gestione del caso <b>a instanceof TimeDepositAccount</b> nel metodo <b>testAccount</b>.
+
+<br>
+<TABLE width="100%" border="2" align="center">
+<TR align="left" valign="center" width="100">
+<td>
+<pre>
+public class AccountTester2
+{
+    public static void main(String[] args)
+    { 
+        // test metodi di BankAccount
+        BankAccount a = new BankAccount();
+        testAccount(a);
+
+        // test metodi di SavingsAccount
+        a = new SavingsAccount(.5);
+        testAccount(a);
+
+        // test metodi di CheckingAccount
+        a = new CheckingAccount();
+        testAccount(a);
+
+        // test metodi di TimeDepositAccount
+        a = new TimeDepositAccount(.5, 6); //deposito vincolato per 6 mesi
+        testAccount(a);
+    }
+
+    // Metodo statico ausiliario per effettuare il collaudo con operazioni
+    // diverse a seconda del tipo dell'oggetto a cui punta il riferimento a
+    private static void testAccount(BankAccount a)
+    {
+        System.out.println("\n********** Collaudo di " + a.getClass().getName()
+                            +"**********");
+
+        /*  Le seguenti operazioni di versamento e prelievo vengono effettuate
+            qualunque sia il tipo dell'oggetto. Pero` i risultati possono 
+            cambiare di volta in volta, per il polimorfismo 
+        */
+        a.deposit(1000);
+        System.out.println("Stato dopo Versamento:\n     " + a);
+        a.withdraw(500);
+        System.out.println("Stato dopo Prelievo:\n     " + a);
+
+        BankAccount newa = null; 
+
+        //Le seguenti operazioni possono essere eseguite solo se l'oggetto e`
+        if (a instanceof TimeDepositAccount) //... di tipo TimeDepositAccount
+        {   TimeDepositAccount ta = (TimeDepositAccount) a;
+            for (int i = 0; i < 5; i++)     //facciamo passare 5 mesi
+                ta.addInterest();
+            System.out.println("Interessi dopo 5 mesi:\n     " + a);
+            ta.withdraw(100); // prelievo soggetto a penale
+            System.out.println("Stato dopo Prelievo (con penale):\n     " + a);
+            ta.addInterest();  // facciamo passare il sesto mese
+            System.out.println("Interessi dopo 6 mesi:\n     " + a);
+            ta.withdraw(100); // prelievo non piu` soggetto a penale
+            System.out.println("Stato dopo Prelievo (no penale):\n     " + a);
+           
+            newa = new TimeDepositAccount(ta.getBalance(), 
+                            ta.getInterestRate(), ta.getMonthsLeft()); 
+        }
+        else if (a instanceof SavingsAccount)  //... di tipo SavingsAccount
+        {   SavingsAccount sa = (SavingsAccount) a;
+            sa.addInterest();
+            System.out.println("Interessi fine mese:\n     " + a);
+            newa = new SavingsAccount(sa.getBalance(), sa.getInterestRate()); 
+        }
+        else if (a instanceof CheckingAccount) //... di tipo CheckingAccount
+        {   CheckingAccount ca = (CheckingAccount) a;   
+            for (int i = 0; i < 5; i++)     //facciamo un po' 
+                {   ca.deposit(100);        // di operazioni
+                    ca.withdraw(100);       // a saldo nullo
+                }
+            System.out.println("Effettuate " + ca.getTransactionCount() +
+                                " operazioni, di cui " + ca.FREE_TRANSACTIONS + 
+                                " operazioni gratuite");
+            ca.deductFees();
+            System.out.println("Addebito operazioni:\n     " + a);
+            newa = new CheckingAccount(ca.getBalance(),ca.getTransactionCount());
+        }
+        else  // ... di tipo BankAccount
+            newa = new BankAccount(a.getBalance());
+
+
+
+        /*  Ora il riferimento newa punta ad un oggetto identico a quello
+            puntato da a, perche` lo abbiamo costruito inizializzandolo con lo
+            stato attuale di a
+        */
+        System.out.println();
+        System.out.println("Stato attuale del conto a:\n     " +a);
+        System.out.println("Stato del nuovo conto newa:\n     " +newa);
+        System.out.println("Check di uguaglianza: " + a.equals(newa));
+
+        //modifichiamo i due conti trasferendo soldi dall'uno all'altro
+        a.transfer(100, newa);
+        System.out.println("Stato del conto a dopo bonifico:\n     " +a);
+        System.out.println("Stato del conto newa dopo bonifico:\n     "+newa);
+        System.out.println("Check di uguaglianza: " + a.equals(newa));
+
+    }
+}
+
+</pre>
+</td>
+</TR>
+</TABLE>
+
+
+
+
+
+
+</body>
+
+</html>
+

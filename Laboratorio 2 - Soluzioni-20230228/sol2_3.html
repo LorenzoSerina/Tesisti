@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+
+<head><link rel="stylesheet" type="text/css" href="https://moodle.dei.unipd.it/theme/standard/styles.php" />
+<link rel="stylesheet" type="text/css" href="https://moodle.dei.unipd.it/theme/dei3/styles.php" />
+
+<title>Fondamenti di Informatica - Welcome</title>
+<link rel="stylesheet" href="../../css/fi1style.css" type="text/css">
+</head>
+
+<body>
+
+<div align="center">
+<h1>Soluzione 9.3</h1>
+</div>
+Leggere con attenzione i commenti al codice del metodo <strong>iterativeMergeSort</strong>. Provare a verificarne "a mano" il comportamento su un array di prova.<br>
+Prestare attenzione al fatto che il confronto di ordinamento tra stringhe avviene attraverso il metodo <b>compareTo</b>.
+
+
+<br>
+<TABLE width="100%" border="2" align="center">
+<TR align="left" valign="center" width="100">
+<td>
+<pre>
+public class StringArrayAlgs
+{
+
+   //... da completare
+
+    // mergeSort iterativo
+    public static void iterativeMergeSort(String[] v, int vSize)
+    {
+        /*
+          ad ogni passo di iterazione, dim e` la dimensione di tutti i 
+          sottoarray da esaminare. Attenzione all'aggiornamento di dim nel ciclo
+        */
+        for (int dim = 1; dim < vSize; dim *= 2) 
+        {
+            int begin1 = 0;             //inizio primo sotto-array da fondere
+            int begin2 = begin1 + dim;  //inizio secondo sotto-array da fondere
+            while (begin2 + dim <= vSize)
+            {
+                String[] v1 = new String[dim];
+                String[] v2 = new String[dim];
+                System.arraycopy(v, begin1, v1, 0, dim);
+                System.arraycopy(v, begin2, v2, 0, dim);
+                String[] v3 = new String[dim*2];
+                merge(v3, v1, v2);
+                System.arraycopy(v3, 0, v, begin1, dim*2);
+                begin1 = begin2 + dim;  //passa ai due sottoarray successivi
+                begin2 = begin1 + dim;
+            }
+            /*
+             Cosa succede se la dimensione dell'array non e' una potenza di 2?
+             Effettuare qualche prova a mano e verificare che all'ultima 
+             iterazione del ciclo esterno il codice sopra scritto omette di 
+             elaborare la parte terminale dell'array (provare ad esempio con
+             dimensioni n = 9,10,...,15 e osservare cosa succede agli ultimi  
+             elementi dell'array).
+             Il codice seguente gestisce questo eventuale "frammento terminale"
+             e rende il metodo funzionante anche quando la dimensione di v
+             non e` una potenza di 2
+            */
+            if (begin2 < vSize)  //caso in cui il secondo sottoarray della 
+            {                    //coppia in esame e' incompleto (ad es. n=15)
+                int dim2 = vSize - begin2;
+                String[] v1 = new String[dim];
+                String[] v2 = new String[dim2];
+                System.arraycopy(v, begin1, v1, 0, dim);
+                System.arraycopy(v, begin2, v2, 0, dim2);
+                String[] v3 = new String[dim + dim2];
+                merge(v3, v1, v2);
+                System.arraycopy(v3, 0, v, begin1, v3.length);
+            }
+        }
+    }
+    //metodo ausilario di iterativeMergeSort
+    private static void merge(String[] v, String[] v1, String[] v2)
+    {
+        int i = 0;
+        int i1 = 0;
+        int i2 = 0;
+        while (i1 < v1.length && i2 < v2.length)
+            if (v1[i1].compareTo(v2[i2]) < 0)
+                v[i++] = v1[i1++];
+            else
+                v[i++] = v2[i2++];
+        while (i1 < v1.length)
+            v[i++] = v1[i1++];
+        while (i2 < v2.length)
+            v[i++] = v2[i2++];
+    }
+
+
+    
+    //... da completare
+}
+</pre>
+</td>
+</TR>
+</TABLE>
+
+
+</body>
+
+</html>
+

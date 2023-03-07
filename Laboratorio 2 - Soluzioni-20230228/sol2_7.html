@@ -1,0 +1,165 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+
+<head><link rel="stylesheet" type="text/css" href="https://moodle.dei.unipd.it/theme/standard/styles.php" />
+<link rel="stylesheet" type="text/css" href="https://moodle.dei.unipd.it/theme/dei3/styles.php" />
+
+<title>Fondamenti di Informatica - Welcome</title>
+<link rel="stylesheet" href="../../css/fi1style.css" type="text/css">
+</head>
+
+<body>
+
+<div align="center">
+<h1>Soluzione 9.7</h1>
+</div>
+
+Ecco una soluzione con la classe <b>Square</b> e la classe di collaudo <b>SquareTester</b> scritte nello stesso file.<br>
+Commenti sulla classe <b>Square</b>
+<ul>
+<li>Notate che e` stato necessario importare <b>Rectangle</b> nel nostro codice. In generale, per estendere una classe la dobbiamo importare (a meno che non si trovi nella stessa directory del nostro progetto).</li>
+<li>La scrittura della classe Square ha richiesto poche righe di codice. Il nuovo metodo <b>setSize(int dim)</b> usa semplicemente il metodo <b>setSize(int width, int height)</b> di <b>Rectangle</b>. Il costruttore e la sovrascrittura di <b>setSize(int width, int height)</b> usano a loro volta il metodo <b>setSize(int dim)</b>. Il nuovo metodo <b>getArea</b> non necessita di particolari commenti.</li>
+<li>Ovviamente questa classe <b>Square</b> presenta ancora molti problemi, che per brevita` evitiamo di trattare. Se volessimo davvero garantire che un oggetto di tipo <b>Square</b> abbia sempre uno stato consistente (ovvero che la sua larghezza e la sua altezza coincidano sempre), dovremmo sovrascrivere molti altri metodi di <b>Rectangle</b> (<b>setRect</b>, <b>setBounds</b>, <b>grow</b>, <b>add</b>, ...)</li>
+</ul>
+Per quanto riguarda la classe di collaudo, notate l'uso di metodi ausiliari ed in particolare del metodo <b>inputToArray</b>, che ci consente di risparmiare righe di codice e di gestire in maniera robusta l'input di righe di interi.
+ 
+<br>
+<TABLE width="100%" border="2" align="center">
+<TR align="left" valign="center" width="100">
+<td>
+<pre>
+import java.awt.Rectangle; //questo import serve per estendere Rectangle
+import java.util.Scanner;
+import java.util.NoSuchElementException;
+
+public class SquareTester
+{
+    public static void main(String[] args)
+    {
+
+        // gestione dell'input
+        Scanner in = new Scanner(System.in);       
+        System.out.println("\n----------------------------------");
+        System.out.println("** Inserimento dei dati dei due quadrati");
+        System.out.println("** 3 int per riga: (x,y) del centro, dimensione");
+
+        System.out.println("** Primo quadrato:");
+        int[] dati1 = inputToArray(in,3); //metodo ausiliario;
+        System.out.println("** Secondo quadrato:");
+        int[] dati2 = inputToArray(in,3); //metodo ausiliario;
+
+        //creazione dei quadrati e stampa ordinata
+        Square square1= new Square(dati1[0],dati1[1],dati1[2]);
+        Square square2= new Square(dati2[0],dati2[1],dati2[2]);
+        System.out.println("\nQuadrati creati");
+        sortedPrint(square1, square2); //metodo ausiliario
+
+        //ridimensionamento
+        System.out.println("\n----------------------------------");
+        System.out.println("** Inserimento dei dati per il ridimensionamento");
+        System.out.println("** 2 int per riga: nuove larghezza/altezza (w,h)");
+        System.out.println("** (w e h verranno accettate solo se coincidono)");
+
+        System.out.println("** Primo quadrato:");
+        dati1 = inputToArray(in,2); //metodo ausiliario;
+        System.out.println("** Secondo quadrato:");
+        dati2 = inputToArray(in,2); //metodo ausiliario;
+        
+        try{
+            square1.setSize(dati1[0], dati1[1]);
+            square2.setSize(dati2[0], dati2[1]);
+            }
+        catch(IllegalArgumentException e)
+        {   System.out.println("ERRORE: Larghezza/altezza non coincidenti!");
+            System.exit(1);
+        }
+
+        //Quest'ultima stampa viene fatta solo se w1=h1 e w2=h2 
+        System.out.println("\nQuadrati ridimensionati");
+        sortedPrint(square1, square2); //metodo ausiliario
+ 
+
+    }
+
+    //Metodo ausiliario per la gestione dell'input
+    //puo` lanciare NoSuchElementException (se ci sono meno di "dim" token)
+    //              NumberFormatException (se i token non sono di tipo int)
+    private static int[] inputToArray(Scanner in, int dim)
+    {
+        System.out.println("Inserire " + dim + " numeri int su una riga");
+        int[] input = new int[dim];
+        boolean done = false;
+        while(!done)  //ciclo e mezzo iterato finche` l'input e` sbagliato
+        {   Scanner linescan = new Scanner(in.nextLine());
+            try{
+                for (int i = 0; i < dim; i++)
+                    input[i] = Integer.parseInt(linescan.next());
+                done = true;
+                }
+            catch(NoSuchElementException e)
+            {   System.out.println("ERRORE INPUT: pochi parametri");  }
+            catch(NumberFormatException e)
+            {   System.out.println("ERRORE INPUT: devi inserire interi"); }
+        }
+        return input;  //viene restituito un array di int con "dim" elementi 
+    }
+
+    //Metodo ausiliario per la stampa ordinata dei due quadrati a st. output
+    private static void sortedPrint(Square square1, Square square2)
+    {
+        String string1 = "1: "+square1+" -- Area = "+square1.getArea();
+        String string2 = "2: "+square2+" -- Area = "+square2.getArea();
+
+        if (square1.getArea() <= square2.getArea())
+            System.out.println(string1 + "\n" + string2);
+        else
+            System.out.println(string2 + "\n" + string1);
+    }
+
+}
+
+
+// --------------------------------------------------------------------------
+
+class Square extends Rectangle
+{
+    //Costruttore
+    public Square(int x, int y, int w)
+    {
+        //super(); //sottinteso: crea un rettangolo il cui vertice in alto a
+                   //sinistra e` (0,0) e con larghezza=altezza=0 
+        //centra il quadrato in (0,0)
+        setLocation(x - w / 2, y - w / 2);
+        //ridimensiona il quadrato usando in nuovo metodo setSize(int dim)
+        setSize(w);
+    }
+
+    //metodo di Rectangle sovrascritto
+    public void setSize(int width, int height)
+    {   if(width != height)
+            throw new IllegalArgumentException();
+        setSize(width);
+    }
+
+    public void setSize(int dim)
+    {
+        super.setSize(dim, dim);
+    }
+ 
+    public double getArea()
+    {
+        return getWidth() * getWidth();
+    }
+}
+
+</pre>
+</td>
+</TR>
+</TABLE>
+
+
+</body>
+
+</html>
+

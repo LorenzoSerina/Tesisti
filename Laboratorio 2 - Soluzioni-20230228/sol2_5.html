@@ -1,0 +1,247 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+
+<head><link rel="stylesheet" type="text/css" href="https://moodle.dei.unipd.it/theme/standard/styles.php" />
+<link rel="stylesheet" type="text/css" href="https://moodle.dei.unipd.it/theme/dei3/styles.php" />
+
+<title>Fondamenti di Informatica - Welcome</title>
+<link rel="stylesheet" href="../../css/fi1style.css" type="text/css">
+</head>
+
+<body>
+
+<div align="center">
+<h1>Soluzione 9.5</h1>
+</div>
+
+Ecco le classi <b>BankAccount</b>, <b>SavingsAccount</b>, <b>CheckingAccount</b>, completate con la sovrascrittura dei metodi <b>toString</b> e <b>equals</b>. Collaudatele con la classe <b>AccountTester</b> fornita a corredo di questo esercizio. <br>
+In questa classe di collaudo, notate in particolare l'uso della variabile <b>a</b> di tipo <b>BankAccount</b> e il suo comportamento polimorfo: a seconda che la variabile <b>a</b> punti ad oggetti una particolare classe tra le tre, i comportamenti dei metodi <b>deposit</b>, <b>withdraw</b>, <b>toString</b>, <b>equals</b> cambiano. <br>
+Infine, sempre nella classe di collaudo notate l'uso dell'operatore relazionale <b>instanceof</b>, che ci permette di sapere quale e` la classe di appartenenza dell'oggetto a cui di volta in volta si riferisce la variabile <b>a</b>.
+
+
+<br>
+<TABLE width="100%" border="2" align="center">
+<TR align="left" valign="center" width="100">
+<td>
+<pre>
+public class BankAccount
+{
+    public BankAccount()
+    {
+        balance = 0;
+    }
+
+    public BankAccount(double initialBalance)
+    {   
+        deposit(initialBalance);
+    }
+
+    public void deposit(double amount)
+    {
+        if (amount <= 0)
+            throw new IllegalArgumentException();
+        balance = balance + amount;
+    }
+
+    public void withdraw(double amount)
+    {
+        if (amount > balance || amount <= 0)
+            throw new IllegalArgumentException();
+        balance = balance - amount;
+    }
+
+    public void transfer(double amount, BankAccount other)
+    { 
+        withdraw(amount);
+        other.deposit(amount);
+    }
+
+
+    // ------- metodi di accesso --------
+
+    public double getBalance()
+    {   
+        return balance;
+    }
+
+
+    // ------ metodi di Object da sovrascrivere ---------
+    // ......... toString e equals ......................
+
+    public String toString()
+    {
+        return getClass().getName() + "[balance=" + balance + "]";
+    }
+
+    public boolean equals(Object otherObject)
+    {
+        BankAccount otherAccount = (BankAccount) otherObject;
+        return balance == otherAccount.balance;
+    }
+
+
+    // -------- campi di esemplare ---------
+
+    private double balance;
+}
+
+</pre>
+</td>
+</TR>
+</TABLE>
+
+
+<br>
+<TABLE width="100%" border="2" align="center">
+<TR align="left" valign="center" width="100">
+<td>
+<pre>
+public class SavingsAccount extends BankAccount
+{  
+    public SavingsAccount(double rate)
+    {
+        super();               // costruttore della superclasse
+        interestRate = rate;
+    }
+
+    public SavingsAccount(double initialBalance, double rate)
+    {
+        super(initialBalance); // costruttore della superclasse
+        interestRate = rate;
+    }
+
+    //accredita gli interessi al termine del mese. Attenzione: usa il metodo
+    //deposit della superclasse, altrimenti verrebbe addebitata la penale FEE
+    public void addInterest()     //NUOVO METODO
+    {
+        super.deposit(getBalance() * interestRate / 100);
+    }
+
+
+    // ------- metodi di accesso --------
+
+    public double getInterestRate()
+    {   
+        return interestRate;
+    }
+
+
+    // ------ metodi di Object sovrascritti ---------
+    // ........... toString, equals .................
+
+    public String toString()
+    {
+        return super.toString() + "[interestRate=" + interestRate + "]";
+    }
+
+    public boolean equals(Object otherObject)
+    {
+        return super.equals(otherObject) &&
+               interestRate == ((SavingsAccount) otherObject).interestRate;
+    }
+
+
+
+    //-------- nuovi campi di esemplare ----------------
+
+    private double interestRate;
+}
+
+</pre>
+</td>
+</TR>
+</TABLE>
+
+<br>
+<TABLE width="100%" border="2" align="center">
+<TR align="left" valign="center" width="100">
+<td>
+<pre>
+public class CheckingAccount extends BankAccount
+{
+    public CheckingAccount()
+    {
+        super();               // costruttore della superclasse
+        transactionCount = 0;  // azzera conteggio transaz.
+    }
+
+    public CheckingAccount(double initialBalance)
+    {
+        super(initialBalance); // costruttore della superclasse
+        transactionCount = 0;  // azzera conteggio transaz.
+    }
+
+    public CheckingAccount(double initialBalance, int initialTransCount)
+    {
+        super(initialBalance); // costruttore della superclasse
+        transactionCount = initialTransCount; // transazioni iniziali
+    }
+
+    public void deposit(double amount)  //SOVRASCRITTO
+    {
+        super.deposit(amount); // aggiungi amount al saldo
+        transactionCount++;        
+    }
+
+    public void withdraw(double amount) //SOVRASCRITTO
+    {
+        super.withdraw(amount); // sottrai amount dal saldo
+        transactionCount++;
+    } 
+
+    //applica le commissioni sulle operazioni in eccedenza
+    public void deductFees()  //NUOVO METODO
+    {
+        if (transactionCount > FREE_TRANSACTIONS)
+        {
+            double fees = TRANSACTION_FEE *
+                            (transactionCount - FREE_TRANSACTIONS);
+            super.withdraw(fees);
+        }
+        transactionCount = 0;
+    }
+
+
+    // ------- metodi di accesso --------
+
+    public int getTransactionCount()
+    {
+        return transactionCount;
+    }
+
+
+
+    // ------ metodi di Object sovrascritti ---------
+    // ........... toString, equals .................
+
+    public String toString()
+    {
+        return super.toString() + "[transactionCount=" +transactionCount + "]";
+    }
+
+    public boolean equals(Object otherObject)
+    {
+        return super.equals(otherObject) &&
+         transactionCount == ((CheckingAccount) otherObject).transactionCount;
+    }
+
+
+
+    //-------- nuovi campi di esemplare e variabili statiche ----------------
+    private int transactionCount;
+    public static final int FREE_TRANSACTIONS = 3;
+    public static final double TRANSACTION_FEE = 2.0;
+
+}
+
+</pre>
+</td>
+</TR>
+</TABLE>
+
+
+</body>
+
+</html>
+

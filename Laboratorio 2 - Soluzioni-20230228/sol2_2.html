@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+
+<head><link rel="stylesheet" type="text/css" href="https://moodle.dei.unipd.it/theme/standard/styles.php" />
+<link rel="stylesheet" type="text/css" href="https://moodle.dei.unipd.it/theme/dei3/styles.php" />
+
+<title>Fondamenti di Informatica - Welcome</title>
+<link rel="stylesheet" href="../../css/fi1style.css" type="text/css">
+</head>
+
+<body>
+
+<div align="center">
+<h1>Soluzione 9.2</h1>
+</div>
+Il metodo <strong>bubbleSort</strong>, descritto nel testo dell'esercizio, necessita di due cicli annidati. Inoltre abbiamo isolato l'operazione di scambio tra due elementi dell'array in un metodo ausiliario <b>swap</b>.<br>
+Prestare attenzione al fatto che il confronto di ordinamento tra stringhe avviene attraverso il metodo <b>compareTo</b>.
+
+
+<br>
+<TABLE width="100%" border="2" align="center">
+<TR align="left" valign="center" width="100">
+<td>
+<pre>
+public class StringArrayAlgs
+{
+
+   //... da completare
+
+    public static void bubbleSort(String[] v, int vSize)
+    {
+        for (int i = 0; i < vSize-1; i++)     //attenzione alla formulazione 
+            for (int j = vSize-1; j > i; j--) //di questi due cicli
+                if (v[j].compareTo(v[j-1]) < 0)
+                    swap(v, j, j-1);
+    }
+    private static void swap(String[] v, int i, int j)
+    {
+        String s = v[i];
+        v[i] = v[j];
+        v[j] = s;
+    }
+    
+    //... da completare
+}
+
+</pre>
+</td>
+</TR>
+</TABLE>
+
+
+</body>
+
+</html>
+

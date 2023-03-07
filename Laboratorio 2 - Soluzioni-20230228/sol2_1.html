@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+
+<head><link rel="stylesheet" type="text/css" href="https://moodle.dei.unipd.it/theme/standard/styles.php" />
+<link rel="stylesheet" type="text/css" href="https://moodle.dei.unipd.it/theme/dei3/styles.php" />
+
+<title>Fondamenti di Informatica - Welcome</title>
+<link rel="stylesheet" href="../../css/fi1style.css" type="text/css">
+</head>
+
+<body>
+
+<div align="center">
+<h1>Soluzione 9.1</h1>
+</div>
+Il metodo <strong>iterativeBinSearch</strong> effettua un accesso all'elemento intermedio dell'array ordinato, e se questo non contiene il valore cercato itera la ricerca sul semi-array superiore o inferiore, fino a quando
+<ol>
+<li>non trova il valore cercato, oppure</li>
+<li>l'intervallo su cui effettuare la ricerca non diventa vuoto</li>
+</ol>
+Prestare attenzione al fatto che il confronto di ordinamento tra stringhe avviene attraverso i metodi <b>equals</b> e <b>compareTo</b>.
+
+
+<br>
+<TABLE width="100%" border="2" align="center">
+<TR align="left" valign="center" width="100">
+<td>
+<pre>
+public class StringArrayAlgs
+{
+
+   //... da completare
+
+    public static int iterativeBinSearch(String[] v, int vSize, String s)
+    {
+        int from = 0;
+        int to = vSize - 1;
+        while (from <= to)
+        {
+            int mid = (from + to) / 2;
+            if (s.equals(v[mid]))
+                return mid;
+            else if (s.compareTo(v[mid]) < 0)
+                to = mid - 1;
+            else
+                from = mid + 1;
+        }
+        return -1;
+    }
+
+    
+    //... da completare
+}
+
+</pre>
+</td>
+</TR>
+</TABLE>
+
+
+</body>
+
+</html>
+
